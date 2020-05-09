@@ -6,7 +6,6 @@ import Dialog from '@material-ui/core/Dialog';
 
 const useStyles = makeStyles({
   dialog: {
-    maxWidth: 500,
     maxHeight: '90vh',
     width: '100%',
   },

@@ -10,7 +10,7 @@ const initialState = {
     {
       id: 1,
       operation: 'DEPOSIT',
-      date: new Date().getTime(),
+      date: new Date(94435345433),
       from: null,
       to: 1,
       amount: 44,
@@ -18,10 +18,18 @@ const initialState = {
     {
       id: 2,
       operation: 'TRANSFER',
-      date: new Date().getTime(),
+      date: new Date(14435345433),
       from: 2,
       to: 1,
       amount: 1673.23,
+    },
+    {
+      id: 3,
+      operation: 'TRANSFER',
+      date: new Date(44435345433),
+      from: 5,
+      to: 4,
+      amount: 73.23,
     },
   ],
 };
@@ -57,7 +65,7 @@ const rootReducer = (state = initialState, { type, payload }) => {
           ...state.history,
           {
             id: state.history[state.history.length - 1].id + 1,
-            date: new Date().getTime(),
+            date: new Date(),
             operation: type,
             from: payload.from,
             to: payload.to,
@@ -76,7 +84,7 @@ const rootReducer = (state = initialState, { type, payload }) => {
           ...state.history,
           {
             id: state.history[state.history.length - 1].id + 1,
-            date: new Date().getTime(),
+            date: new Date(),
             operation: type,
             from: payload.from,
             to: payload.to,
@@ -96,7 +104,7 @@ const rootReducer = (state = initialState, { type, payload }) => {
           ...state.history,
           {
             id: state.history[state.history.length - 1].id + 1,
-            date: new Date().getTime(),
+            date: new Date(),
             operation: type,
             from: payload.from,
             to: payload.to,

@@ -1,8 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
+import { makeStyles } from '@material-ui/core/styles';
 import NumberFormat from 'react-number-format';
+import HistoryIcon from '@material-ui/icons/EventNote';
+import IconButton from 'components/IconButton/IconButton';
+import Modal from 'components/Modal/Modal';
+import Table from 'components/Table/Table';
+
+const useStyles = makeStyles({
+  button: {
+    '&:hover': {
+      opacity: 0.5,
+    },
+  },
+  icon: {
+    fontSize: '2.5rem',
+    color: '#fff',
+  },
+});
 
 const StyledWrapper = styled.nav`
   position: fixed;
@@ -30,10 +47,20 @@ const StyledItem = styled.div`
   }
 `;
 
-const Header = ({ jars }) => {
+const Header = ({ jars, history }) => {
   const totalBalance = jars.reduce((acc, { balance }) => {
     return acc + balance;
   }, 0);
+
+  const [isModalOpen, setModalOpen] = useState(false);
+
+  const displayHistory = () => {
+    setModalOpen(true);
+  };
+
+  const getJarById = (targetId) => jars.find(({ id }) => id === targetId);
+
+  const classes = useStyles();
 
   return (
     <StyledWrapper>
@@ -51,6 +78,34 @@ const Header = ({ jars }) => {
         Ilość słoików:
         <span>{jars.length}</span>
       </StyledItem>
+      <StyledItem>
+        <IconButton width={50} onClickHandler={displayHistory} title="Wyświetl historię" light>
+          <HistoryIcon className={classes.icon} />
+        </IconButton>
+      </StyledItem>
+      <Modal
+        title="Historia transakcji"
+        isOpen={isModalOpen}
+        closeHandler={() => {
+          setModalOpen(false);
+        }}
+      >
+        <Table
+          columns={[
+            { title: 'Id', field: 'id' },
+            { title: 'Date', field: 'date' },
+            { title: 'Operation', field: 'operation' },
+            { title: 'Z', field: 'from' },
+            { title: 'Do', field: 'to' },
+            { title: 'Amount', field: 'amount' },
+          ]}
+          rows={history.map(({ from, to, ...rest }) => ({
+            from: from ? getJarById(from).name : 'n.d.',
+            to: to ? getJarById(to).name : 'n.d.',
+            ...rest,
+          }))}
+        />
+      </Modal>
     </StyledWrapper>
   );
 };
@@ -61,14 +116,25 @@ Header.propTypes = {
       balance: PropTypes.number,
     }),
   ),
+  history: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      date: PropTypes.instanceOf(Date),
+      operation: PropTypes.string.isRequired,
+      from: PropTypes.number,
+      to: PropTypes.number,
+      amount: PropTypes.number.isRequired,
+    }),
+  ),
 };
 
 Header.defaultProps = {
   jars: [],
+  history: [],
 };
 
-const mapStateToProps = ({ jars }) => {
-  return { jars };
+const mapStateToProps = ({ jars, history }) => {
+  return { jars, history };
 };
 
 export default connect(mapStateToProps)(Header);

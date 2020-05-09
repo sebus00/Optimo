@@ -213,8 +213,7 @@ const Jar = ({
             { title: 'Operation', field: 'operation' },
             { title: 'Amount', field: 'amount' },
           ]}
-          rows={[...history].reverse().map(({ date, operation, ...rest }) => ({
-            date: new Date(date).toLocaleString(),
+          rows={history.map(({ operation, ...rest }) => ({
             operation:
               operation !== 'TRANSFER'
                 ? operation
@@ -348,7 +347,7 @@ Jar.propTypes = {
   history: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.number.isRequired,
-      date: PropTypes.number.isRequired,
+      date: PropTypes.instanceOf(Date),
       operation: PropTypes.string.isRequired,
       from: PropTypes.number,
       to: PropTypes.number,

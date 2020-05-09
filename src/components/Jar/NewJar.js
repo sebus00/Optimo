@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { addJarAction } from 'store/actions';
 import styled from 'styled-components';
-import plusImage from 'assets/icons/plus.svg';
 import cx from 'classnames';
+import plusImage from 'assets/icons/plus.svg';
 
 const StyledWrapper = styled.div`
   width: 100%;
