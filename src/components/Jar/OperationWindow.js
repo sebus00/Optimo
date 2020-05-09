@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import Slider from '@material-ui/core/Slider';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
-import TextField from './TextField';
+import TextField from '../TextField/TextField';
 
 const StyledWrapper = styled.div`
   position: absolute;
@@ -26,7 +26,7 @@ const StyledRow = styled.div`
   margin-top: 20px;
 `;
 
-const SliderInput = ({ label, operationAmount, setOperationAmount, max, cancel, confirm }) => {
+const OperationWindow = ({ label, operationAmount, setOperationAmount, max, cancel, confirm }) => {
   const handleSliderChange = (event, value) => {
     setOperationAmount(value);
   };
@@ -79,7 +79,7 @@ const SliderInput = ({ label, operationAmount, setOperationAmount, max, cancel, 
   );
 };
 
-SliderInput.propTypes = {
+OperationWindow.propTypes = {
   label: PropTypes.string.isRequired,
   operationAmount: PropTypes.number.isRequired,
   setOperationAmount: PropTypes.func.isRequired,
@@ -88,8 +88,8 @@ SliderInput.propTypes = {
   confirm: PropTypes.func.isRequired,
 };
 
-SliderInput.defaultProps = {
+OperationWindow.defaultProps = {
   max: null,
 };
 
-export default SliderInput;
+export default OperationWindow;

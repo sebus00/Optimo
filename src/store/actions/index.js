@@ -5,13 +5,6 @@ export const addJarAction = () => {
   };
 };
 
-export const transferAction = (from, to, amount) => {
-  return {
-    type: 'TRANSFER',
-    payload: { from, to, amount },
-  };
-};
-
 export const deleteAction = (id) => {
   return {
     type: 'DELETE',
@@ -37,5 +30,12 @@ export const withdrawAction = (from, amount) => {
   return {
     type: 'WITHDRAW',
     payload: { from, amount },
+  };
+};
+
+export const transferAction = (from, to, amount) => {
+  return {
+    type: 'TRANSFER',
+    payload: { from, to, amount },
   };
 };

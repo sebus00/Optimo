@@ -6,36 +6,43 @@ const initialState = {
     { id: 4, name: 'Podróze', balance: 455.4 },
     { id: 5, name: 'Edukacja', balance: 4300 },
   ],
+  history: [
+    {
+      id: 1,
+      operation: 'DEPOSIT',
+      date: new Date().getTime(),
+      from: null,
+      to: 1,
+      amount: 44,
+    },
+    {
+      id: 2,
+      operation: 'TRANSFER',
+      date: new Date().getTime(),
+      from: 2,
+      to: 1,
+      amount: 1673.23,
+    },
+  ],
 };
 
-const rootReducer = (state = initialState, action) => {
-  switch (action.type) {
+const rootReducer = (state = initialState, { type, payload }) => {
+  switch (type) {
     case 'ADD_JAR':
       return {
         ...state,
         jars: [...state.jars, { id: state.jars[state.jars.length - 1].id + 1, balance: 0 }],
       };
-    case 'TRANSFER':
-      return {
-        ...state,
-        jars: state.jars.map(({ balance, ...rest }) => {
-          if (rest.id === action.payload.from)
-            return { balance: balance - action.payload.amount, ...rest };
-          if (rest.id === action.payload.to)
-            return { balance: balance + action.payload.amount, ...rest };
-          return { balance, ...rest };
-        }),
-      };
     case 'DELETE':
       return {
         ...state,
-        jars: state.jars.filter((item) => item.id !== action.payload.id),
+        jars: state.jars.filter((item) => item.id !== payload.id),
       };
     case 'EDIT':
       return {
         ...state,
         jars: state.jars.map((item) => {
-          if (item.id === action.payload.id) return { ...item, name: action.payload.name };
+          if (item.id === payload.id) return { ...item, name: payload.name };
           return item;
         }),
       };
@@ -43,19 +50,59 @@ const rootReducer = (state = initialState, action) => {
       return {
         ...state,
         jars: state.jars.map(({ balance, ...rest }) => {
-          if (rest.id === action.payload.to)
-            return { balance: balance + action.payload.amount, ...rest };
+          if (rest.id === payload.to) return { balance: balance + payload.amount, ...rest };
           return { balance, ...rest };
         }),
+        history: [
+          ...state.history,
+          {
+            id: state.history[state.history.length - 1].id + 1,
+            date: new Date().getTime(),
+            operation: type,
+            from: payload.from,
+            to: payload.to,
+            amount: payload.amount,
+          },
+        ],
       };
     case 'WITHDRAW':
       return {
         ...state,
         jars: state.jars.map(({ balance, ...rest }) => {
-          if (rest.id === action.payload.from)
-            return { balance: balance - action.payload.amount, ...rest };
+          if (rest.id === payload.from) return { balance: balance - payload.amount, ...rest };
           return { balance, ...rest };
         }),
+        history: [
+          ...state.history,
+          {
+            id: state.history[state.history.length - 1].id + 1,
+            date: new Date().getTime(),
+            operation: type,
+            from: payload.from,
+            to: payload.to,
+            amount: payload.amount,
+          },
+        ],
+      };
+    case 'TRANSFER':
+      return {
+        ...state,
+        jars: state.jars.map(({ balance, ...rest }) => {
+          if (rest.id === payload.from) return { balance: balance - payload.amount, ...rest };
+          if (rest.id === payload.to) return { balance: balance + payload.amount, ...rest };
+          return { balance, ...rest };
+        }),
+        history: [
+          ...state.history,
+          {
+            id: state.history[state.history.length - 1].id + 1,
+            date: new Date().getTime(),
+            operation: type,
+            from: payload.from,
+            to: payload.to,
+            amount: payload.amount,
+          },
+        ],
       };
     default:
       return state;

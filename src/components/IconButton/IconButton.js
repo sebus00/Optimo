@@ -26,8 +26,8 @@ const IconButtonComponent = ({ disabled, onClickHandler, title, children, ...pro
     <Tooltip title={title} TransitionComponent={Zoom} classes={{ tooltip: classes.tooltip }}>
       <IconButton
         classes={{
-          root: classes.iconButton, // class name, e.g. `root-x`
-          disabled: classes.disabled, // class name, e.g. `disabled-x`
+          root: classes.iconButton,
+          disabled: classes.disabled,
         }}
         disabled={disabled}
         onClick={onClickHandler}

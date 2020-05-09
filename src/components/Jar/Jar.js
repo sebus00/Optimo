@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { deleteAction, editAction } from 'store/actions';
 import styled from 'styled-components';
 import NumberFormat from 'react-number-format';
 import cx from 'classnames';
@@ -8,9 +10,12 @@ import { ReactComponent as WithdrawIcon } from 'assets/icons/withdraw.svg';
 import { ReactComponent as TransferIcon } from 'assets/icons/transfer.svg';
 import { ReactComponent as RemoveIcon } from 'assets/icons/bin.svg';
 import { ReactComponent as EditIcon } from 'assets/icons/edit.svg';
-import SliderInput from 'components/Jar/SliderInput';
-import IconButton from 'components/Jar/IconButton';
-import TextField from 'components/Jar/TextField';
+import { ReactComponent as HistoryIcon } from 'assets/icons/history.svg';
+import OperationWindow from 'components/Jar/OperationWindow';
+import IconButton from 'components/IconButton/IconButton';
+import TextField from 'components/TextField/TextField';
+import Modal from 'components/Modal/Modal';
+import Table from 'components/Table/Table';
 import Box from '@material-ui/core/Box';
 
 const StyledWrapper = styled(Box)`
@@ -90,9 +95,12 @@ const StyledLeftSection = styled.div`
   overflow: hidden;
 `;
 
-const StyledNameRow = styled.div`
+const StyledRow = styled.div`
   display: flex;
   align-items: center;
+`;
+
+const StyledNameRow = styled(StyledRow)`
   height: 60px;
   overflow: hidden;
 `;
@@ -122,15 +130,17 @@ const Jar = ({
   id,
   name,
   balance,
+  history,
   state,
   stateChangeHandler,
-  deleteHandler,
-  editHandler,
+  deleteJar,
+  editJar,
   count,
 }) => {
   const [operationAmount, setOperationAmount] = useState(0);
   const [newName, setNewName] = useState(name);
-  const [editingActive, setEditingActive] = useState(false);
+  const [isEditingActive, setEditingActive] = useState(false);
+  const [isModalOpen, setModalOpen] = useState(false);
 
   const transferStart = () => {
     stateChangeHandler(1, id);
@@ -170,12 +180,16 @@ const Jar = ({
 
   const handleEditKeyDown = ({ keyCode }) => {
     if (keyCode === 13) {
-      editHandler(id, newName);
+      editJar(id, newName);
       setEditingActive(false);
     } else if (keyCode === 27) {
       setEditingActive(false);
       setNewName(name);
     }
+  };
+
+  const displayHistory = () => {
+    setModalOpen(true);
   };
 
   return (
@@ -185,9 +199,35 @@ const Jar = ({
       })}
       onClick={hasChoosen}
     >
+      <Modal
+        title="Historia transakcji"
+        isOpen={isModalOpen}
+        closeHandler={() => {
+          setModalOpen(false);
+        }}
+      >
+        <Table
+          columns={[
+            { title: 'Id', field: 'id' },
+            { title: 'Date', field: 'date' },
+            { title: 'Operation', field: 'operation' },
+            { title: 'Amount', field: 'amount' },
+          ]}
+          rows={[...history].reverse().map(({ date, operation, ...rest }) => ({
+            date: new Date(date).toLocaleString(),
+            operation:
+              operation !== 'TRANSFER'
+                ? operation
+                : id === rest.from
+                ? 'TRANSFER OUT'
+                : 'TRANSFER IN',
+            ...rest,
+          }))}
+        />
+      </Modal>
       <StyledLeftSection>
         <StyledNameRow>
-          {!editingActive ? (
+          {!isEditingActive ? (
             <>
               <IconButton
                 width={40}
@@ -220,14 +260,24 @@ const Jar = ({
           prefix="$"
           renderText={(value) => <StyledBalance>{value}</StyledBalance>}
         />
-        <IconButton
-          width={50}
-          disabled={state.step !== 0 || count < 2 || balance !== 0}
-          onClickHandler={() => deleteHandler(id)}
-          title="Usuń"
-        >
-          <RemoveIcon width="100%" height="100%" />
-        </IconButton>
+        <StyledRow>
+          <IconButton
+            width={50}
+            disabled={state.step !== 0 || count < 2 || balance !== 0}
+            onClickHandler={() => deleteJar(id)}
+            title="Usuń"
+          >
+            <RemoveIcon width="100%" height="100%" />
+          </IconButton>
+          <IconButton
+            width={50}
+            disabled={state.step !== 0}
+            onClickHandler={displayHistory}
+            title="Wyświetl historię"
+          >
+            <HistoryIcon width="100%" height="100%" />
+          </IconButton>
+        </StyledRow>
       </StyledLeftSection>
       <StyledButtonsColumn>
         <IconButton
@@ -259,7 +309,7 @@ const Jar = ({
         <StyledTipWrapper>Wskaż słoik do transferu</StyledTipWrapper>
       )}
       {state.step === 2 && state.to.id === id && (
-        <SliderInput
+        <OperationWindow
           label="Podaj kwotę transferu"
           operationAmount={operationAmount}
           setOperationAmount={setOperationAmount}
@@ -269,7 +319,7 @@ const Jar = ({
         />
       )}
       {state.step === 4 && state.to.id === id && (
-        <SliderInput
+        <OperationWindow
           label="Podaj kwotę doładowania"
           operationAmount={operationAmount}
           setOperationAmount={setOperationAmount}
@@ -278,7 +328,7 @@ const Jar = ({
         />
       )}
       {state.step === 6 && state.from.id === id && (
-        <SliderInput
+        <OperationWindow
           label="Podaj wypłacaną kwotę"
           operationAmount={operationAmount}
           setOperationAmount={setOperationAmount}
@@ -295,6 +345,16 @@ Jar.propTypes = {
   id: PropTypes.number.isRequired,
   name: PropTypes.string,
   balance: PropTypes.number.isRequired,
+  history: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      date: PropTypes.number.isRequired,
+      operation: PropTypes.string.isRequired,
+      from: PropTypes.number,
+      to: PropTypes.number,
+      amount: PropTypes.number.isRequired,
+    }),
+  ).isRequired,
   state: PropTypes.shape({
     step: PropTypes.number.isRequired,
     from: PropTypes.shape({
@@ -309,8 +369,8 @@ Jar.propTypes = {
     }),
   }).isRequired,
   stateChangeHandler: PropTypes.func.isRequired,
-  deleteHandler: PropTypes.func.isRequired,
-  editHandler: PropTypes.func.isRequired,
+  deleteJar: PropTypes.func.isRequired,
+  editJar: PropTypes.func.isRequired,
   count: PropTypes.number.isRequired,
 };
 
@@ -318,4 +378,19 @@ Jar.defaultProps = {
   name: 'Słoik bez nazwy',
 };
 
-export default Jar;
+const mapStateToProps = ({ jars, history }, { id }) => {
+  const jar = jars.find((item) => item.id === id);
+  return {
+    name: jar.name,
+    balance: jar.balance,
+    history: history.filter(({ from, to }) => [from, to].includes(id)),
+    count: jars.length,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => ({
+  deleteJar: (jarId) => dispatch(deleteAction(jarId)),
+  editJar: (jarId, newName) => dispatch(editAction(jarId, newName)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Jar);

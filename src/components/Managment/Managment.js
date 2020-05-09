@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import {
-  transferAction,
-  deleteAction,
-  editAction,
-  depositAction,
-  withdrawAction,
-} from 'store/actions';
+import { depositAction, withdrawAction, transferAction } from 'store/actions';
 import styled from 'styled-components';
 import Jar from 'components/Jar/Jar';
 import NewJar from 'components/Jar/NewJar';
@@ -20,7 +14,7 @@ const StyledWrapper = styled.div`
   grid-gap: 50px;
 `;
 
-const Managment = ({ jars, transferMoney, deleteJar, editJar, deposit, withdraw }) => {
+const Managment = ({ jars, transferMoney, deposit, withdraw }) => {
   const [state, setState] = useState({ step: 0, from: null, to: null });
 
   const getJarById = (targetId) => jars.find(({ id }) => id === targetId);
@@ -75,18 +69,8 @@ const Managment = ({ jars, transferMoney, deleteJar, editJar, deposit, withdraw 
   return (
     <StyledWrapper>
       <NewJar disabled={state.step !== 0} />
-      {jars.map(({ id, name, balance }) => (
-        <Jar
-          id={id}
-          name={name}
-          balance={balance}
-          key={id}
-          state={state}
-          stateChangeHandler={changeState}
-          deleteHandler={deleteJar}
-          editHandler={editJar}
-          count={jars.length}
-        />
+      {jars.map(({ id }) => (
+        <Jar id={id} key={id} state={state} stateChangeHandler={changeState} />
       ))}
     </StyledWrapper>
   );
@@ -101,8 +85,6 @@ Managment.propTypes = {
     }),
   ),
   transferMoney: PropTypes.func.isRequired,
-  deleteJar: PropTypes.func.isRequired,
-  editJar: PropTypes.func.isRequired,
   deposit: PropTypes.func.isRequired,
   withdraw: PropTypes.func.isRequired,
 };
@@ -116,12 +98,10 @@ const mapStateToProps = ({ jars }) => {
 };
 
 const mapDispatchToProps = (dispatch) => ({
-  transferMoney: (senderId, receiverId, amount) =>
-    dispatch(transferAction(senderId, receiverId, amount)),
-  deleteJar: (jarId) => dispatch(deleteAction(jarId)),
-  editJar: (jarId, newName) => dispatch(editAction(jarId, newName)),
   deposit: (receiverId, amount) => dispatch(depositAction(receiverId, amount)),
   withdraw: (senderId, amount) => dispatch(withdrawAction(senderId, amount)),
+  transferMoney: (senderId, receiverId, amount) =>
+    dispatch(transferAction(senderId, receiverId, amount)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Managment);
