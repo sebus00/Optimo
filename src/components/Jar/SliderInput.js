@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Slider from '@material-ui/core/Slider';
-import Input from '@material-ui/core/Input';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
+import TextField from './TextField';
 
 const StyledWrapper = styled.div`
   position: absolute;
@@ -32,7 +32,7 @@ const SliderInput = ({ label, operationAmount, setOperationAmount, max, cancel, 
   };
 
   const handleInputChange = (event) => {
-    setOperationAmount(event.target.value === '' ? '' : Number(event.target.value));
+    setOperationAmount(event.target.value === '' ? 0 : Number(event.target.value));
   };
 
   const handleInputBlur = () => {
@@ -58,11 +58,10 @@ const SliderInput = ({ label, operationAmount, setOperationAmount, max, cancel, 
           max={max}
         />
       )}
-      <Input
+      <TextField
         value={operationAmount}
-        margin="dense"
-        onChange={handleInputChange}
-        onBlur={handleInputBlur}
+        changeHandler={handleInputChange}
+        blurHandler={handleInputBlur}
         inputProps={{
           min: 0,
           ...(max && {

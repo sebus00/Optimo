@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import NumberFormat from 'react-number-format';
 import cx from 'classnames';
-import { makeStyles } from '@material-ui/core/styles';
 import { ReactComponent as DepositIcon } from 'assets/icons/deposit.svg';
 import { ReactComponent as WithdrawIcon } from 'assets/icons/withdraw.svg';
 import { ReactComponent as TransferIcon } from 'assets/icons/transfer.svg';
@@ -11,20 +10,12 @@ import { ReactComponent as RemoveIcon } from 'assets/icons/bin.svg';
 import { ReactComponent as EditIcon } from 'assets/icons/edit.svg';
 import SliderInput from 'components/Jar/SliderInput';
 import IconButton from 'components/Jar/IconButton';
+import TextField from 'components/Jar/TextField';
 import Box from '@material-ui/core/Box';
-import TextField from '@material-ui/core/TextField';
-
-const useStyles = makeStyles({
-  textField: {
-    fontSize: '2rem !important',
-    lineHeight: '2.5rem',
-  },
-});
 
 const StyledWrapper = styled(Box)`
   width: 100%;
   max-width: 400px;
-  /* min-width: 270px; */
   height: 200px;
   padding: 10px 15px;
   position: relative;
@@ -34,6 +25,7 @@ const StyledWrapper = styled(Box)`
   transform: scale(1);
   overflow: hidden;
   box-shadow: 0 0.5em 1em -0.125em rgba(10, 10, 10, 0.1), 0 0px 0 1px rgba(10, 10, 10, 0.02);
+  background-color: #fff;
 
   :before {
     content: '';
@@ -136,8 +128,6 @@ const Jar = ({
   editHandler,
   count,
 }) => {
-  const classes = useStyles();
-
   const [operationAmount, setOperationAmount] = useState(0);
   const [newName, setNewName] = useState(name);
   const [editingActive, setEditingActive] = useState(false);
@@ -204,6 +194,7 @@ const Jar = ({
                 onClickHandler={() => {
                   setEditingActive(true);
                 }}
+                title="Edytuj"
               >
                 <EditIcon width="100%" height="100%" />
               </IconButton>
@@ -211,16 +202,14 @@ const Jar = ({
             </>
           ) : (
             <TextField
-              InputProps={{
-                classes: {
-                  root: classes.textField,
-                },
-                inputProps: { maxLength: 15 },
-              }}
-              onKeyDown={handleEditKeyDown}
-              type="text"
               value={newName}
-              onChange={({ target: { value } }) => setNewName(value)}
+              keyDownHandler={handleEditKeyDown}
+              changeHandler={({ target: { value } }) => setNewName(value)}
+              inputProps={{
+                type: 'text',
+                maxLength: 15,
+              }}
+              large
             />
           )}
         </StyledNameRow>
@@ -235,18 +224,25 @@ const Jar = ({
           width={50}
           disabled={state.step !== 0 || count < 2 || balance !== 0}
           onClickHandler={() => deleteHandler(id)}
+          title="Usuń"
         >
           <RemoveIcon width="100%" height="100%" />
         </IconButton>
       </StyledLeftSection>
       <StyledButtonsColumn>
-        <IconButton width={55} disabled={state.step !== 0} onClickHandler={depositStart}>
+        <IconButton
+          width={55}
+          disabled={state.step !== 0}
+          onClickHandler={depositStart}
+          title="Zdeponuj"
+        >
           <DepositIcon width="100%" height="100%" />
         </IconButton>
         <IconButton
           width={55}
           disabled={state.step !== 0 || balance === 0}
           onClickHandler={withdrawStart}
+          title="Wypłać"
         >
           <WithdrawIcon width="100%" height="100%" />
         </IconButton>
@@ -254,6 +250,7 @@ const Jar = ({
           width={55}
           disabled={state.step !== 0 || balance === 0}
           onClickHandler={transferStart}
+          title="Przetransferuj"
         >
           <TransferIcon width="100%" height="100%" />
         </IconButton>

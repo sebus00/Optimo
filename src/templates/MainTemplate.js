@@ -9,6 +9,7 @@ const StyledWrapper = styled.div`
   padding-top: 100px;
   width: 100%;
   min-height: 100vh;
+  background-color: #e7eae4;
 `;
 
 const MainTemplate = ({ children }) => {
