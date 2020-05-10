@@ -37,7 +37,7 @@ const Managment = ({ jars, transferMoney }) => {
         });
         break;
       case 3: // transfer confirmed
-        transferMoney(state.from, state.to, amount);
+        transferMoney(state.from.id, state.to.id, amount, state.from.currency);
         restartState();
         break;
       case 4: // any other operation started
@@ -78,7 +78,8 @@ const mapStateToProps = ({ jars }) => {
 };
 
 const mapDispatchToProps = (dispatch) => ({
-  transferMoney: (sender, receiver, amount) => dispatch(transferAction(sender, receiver, amount)),
+  transferMoney: (from, to, amount, currency) =>
+    dispatch(transferAction(from, to, amount, currency)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Managment);

@@ -1,15 +1,13 @@
 import PropTypes from 'prop-types';
-import CurrencyPropsTypes from 'models/Currency';
-import JarPropsTypes from 'models/Jar';
 
 const HistoryPropsTypes = PropTypes.shape({
   id: PropTypes.number.isRequired,
   date: PropTypes.instanceOf(Date).isRequired,
   operation: PropTypes.string.isRequired,
-  from: JarPropsTypes,
-  to: JarPropsTypes,
+  from: PropTypes.number,
+  to: PropTypes.number,
   amount: PropTypes.number.isRequired,
-  currency: CurrencyPropsTypes,
+  currency: PropTypes.string.isRequired,
 });
 
 export default HistoryPropsTypes;

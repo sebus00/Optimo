@@ -7,7 +7,7 @@ import Zoom from '@material-ui/core/Zoom';
 
 const useStyles = makeStyles({
   iconButton: {
-    padding: 8,
+    padding: '5px',
     maxWidth: ({ width }) => width || 100,
     '&$disabled': {
       opacity: 0.5,

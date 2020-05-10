@@ -9,6 +9,10 @@ const useStyles = makeStyles({
     fontSize: ({ large }) => (large ? '2rem' : '1.6rem'),
     lineHeight: ({ large }) => (large ? '2.5rem' : '2rem'),
   },
+  label: {
+    fontSize: ({ large }) => (large ? '1.6rem' : '1.3rem'),
+    lineHeight: ({ large }) => (large ? '2rem' : '1.7rem'),
+  },
 });
 
 const TextFieldComponent = ({
@@ -19,6 +23,7 @@ const TextFieldComponent = ({
   inputProps,
   suffix,
   type,
+  label,
   ...props
 }) => {
   const classes = useStyles(props);
@@ -34,11 +39,17 @@ const TextFieldComponent = ({
         }),
         inputProps,
       }}
+      InputLabelProps={{
+        classes: {
+          root: classes.label,
+        },
+      }}
       type={type}
       value={value}
       onChange={changeHandler}
       onBlur={blurHandler}
       onKeyDown={keyDownHandler}
+      label={label}
     />
   );
 };
@@ -51,6 +62,7 @@ TextFieldComponent.propTypes = {
   inputProps: PropTypes.object,
   suffix: PropTypes.string,
   type: PropTypes.string,
+  label: PropTypes.string,
 };
 
 TextFieldComponent.defaultProps = {
@@ -59,6 +71,7 @@ TextFieldComponent.defaultProps = {
   inputProps: {},
   suffix: '',
   type: 'text',
+  label: '',
 };
 
 export default TextFieldComponent;

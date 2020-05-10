@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import Slider from '@material-ui/core/Slider';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
-import TextField from '../TextField/TextField';
+import TextField from 'components/TextField/TextField';
 
 const StyledWrapper = styled.div`
   position: absolute;
@@ -65,7 +65,7 @@ const OperationWindow = ({
           aria-labelledby="input-slider"
           step={0.01}
           min={0}
-          max={max}
+          max={max / 100}
         />
       )}
       <TextField
@@ -76,15 +76,17 @@ const OperationWindow = ({
         inputProps={{
           min: 0,
           ...(max && {
-            max,
+            max: max / 100,
           }),
           'aria-labelledby': 'transfer-input-slider',
         }}
         suffix={currency}
       />
       <StyledRow>
-        <Button onClick={cancel}>Anuluj</Button>
-        <Button disabled={operationAmount === 0} onClick={confirm}>
+        <Button size="large" onClick={cancel}>
+          Anuluj
+        </Button>
+        <Button size="large" disabled={operationAmount === 0} onClick={confirm}>
           Zatwierdź
         </Button>
       </StyledRow>

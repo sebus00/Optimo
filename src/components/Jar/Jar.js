@@ -155,15 +155,14 @@ const Jar = ({
   const [isWithdrawActive, setWithdrawActive] = useState(false);
   const [isDepositActive, setDepositActive] = useState(false);
   const [isChangeCurrencyActive, setChangeCurrencyActive] = useState(false);
-  const [newCurrency, setNewCurrency] = useState(currency.code);
+  const [newCurrency, setNewCurrency] = useState(currency);
   const [isModalOpen, setModalOpen] = useState(false);
 
   const transferStart = () => {
     stateChangeHandler(1, jar);
   };
   const hasChoosen = () => {
-    if (state.step !== 1 || state.from.id === id || state.from.currency.code !== currency.code)
-      return;
+    if (state.step !== 1 || state.from.id === id || state.from.currency !== currency) return;
     stateChangeHandler(2, jar);
   };
 
@@ -186,7 +185,7 @@ const Jar = ({
   };
 
   const confirmDeposit = () => {
-    deposit(jar, operationAmount);
+    deposit(jar.id, operationAmount, jar.currency);
     endOperation();
   };
 
@@ -196,7 +195,7 @@ const Jar = ({
   };
 
   const confirmWithdraw = () => {
-    withdraw(jar, operationAmount);
+    withdraw(jar.id, operationAmount, jar.currency);
     endOperation();
   };
 
@@ -229,7 +228,7 @@ const Jar = ({
     <StyledWrapper
       className={cx({
         'transfer-target':
-          state.step === 1 && state.from.id !== id && state.from.currency.code === currency.code,
+          state.step === 1 && state.from.id !== id && state.from.currency === currency,
       })}
       onClick={hasChoosen}
     >
@@ -256,8 +255,8 @@ const Jar = ({
                 ? 'TRANSFER OUT'
                 : 'TRANSFER IN',
             ...rest,
-            amount: `${rest.amount} ${rest.currency.code}`,
-            currency: rest.currency.name,
+            amount: `${rest.amount / 100} ${rest.currency}`,
+            currency: rest.currency,
           }))}
         />
       </Modal>
@@ -290,10 +289,10 @@ const Jar = ({
           )}
         </StyledNameRow>
         <NumberFormat
-          value={balance.toFixed(2)}
+          value={(balance / 100).toFixed(2)}
           displayType="text"
           thousandSeparator
-          suffix={` ${currency.code}`}
+          suffix={` ${currency}`}
           renderText={(value) => <StyledBalance>{value}</StyledBalance>}
         />
         <StyledRow>
@@ -325,7 +324,7 @@ const Jar = ({
       </StyledLeftSection>
       <StyledButtonsColumn>
         <IconButton
-          width={55}
+          width={60}
           disabled={state.step !== 0}
           onClickHandler={depositStart}
           title="Zdeponuj"
@@ -360,7 +359,7 @@ const Jar = ({
           max={state.from.balance}
           cancel={endOperation}
           confirm={confirmTransfer}
-          currency={currency.code}
+          currency={currency}
         />
       )}
       {state.step === 4 && isDepositActive && (
@@ -370,7 +369,7 @@ const Jar = ({
           setOperationAmount={setOperationAmount}
           cancel={endOperation}
           confirm={confirmDeposit}
-          currency={currency.code}
+          currency={currency}
         />
       )}
       {state.step === 4 && isWithdrawActive && (
@@ -381,7 +380,7 @@ const Jar = ({
           max={balance}
           cancel={endOperation}
           confirm={confirmWithdraw}
-          currency={currency.code}
+          currency={currency}
         />
       )}
       {state.step === 4 && isChangeCurrencyActive && (
@@ -428,7 +427,7 @@ Jar.defaultProps = {
 const mapStateToProps = ({ jars, history, currencies }, { jar: { id } }) => {
   return {
     history: history.filter(({ from, to }) =>
-      [...(from ? [from.id] : []), ...(to ? [to.id] : [])].includes(id),
+      [...(from ? [from] : []), ...(to ? [to] : [])].includes(id),
     ),
     currencies,
     count: jars.length,
@@ -438,9 +437,9 @@ const mapStateToProps = ({ jars, history, currencies }, { jar: { id } }) => {
 const mapDispatchToProps = (dispatch) => ({
   deleteJar: (jarId) => dispatch(deleteAction(jarId)),
   editJar: (jarId, newName) => dispatch(editAction(jarId, newName)),
-  changeCurrency: (jarId, newCurrency) => dispatch(changeAction(jarId, newCurrency)),
-  deposit: (receiver, amount) => dispatch(depositAction(receiver, amount)),
-  withdraw: (sender, amount) => dispatch(withdrawAction(sender, amount)),
+  changeCurrency: (jarId, newCurrencyCode) => dispatch(changeAction(jarId, newCurrencyCode)),
+  deposit: (to, amount, currency) => dispatch(depositAction(to, amount, currency)),
+  withdraw: (from, amount, currency) => dispatch(withdrawAction(from, amount, currency)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Jar);

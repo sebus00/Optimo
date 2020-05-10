@@ -19,24 +19,24 @@ export const editAction = (id, name) => {
   };
 };
 
-export const depositAction = (to, amount) => {
+export const depositAction = (to, amount, currency) => {
   return {
     type: 'DEPOSIT',
-    payload: { to, amount },
+    payload: { to, amount, currency },
   };
 };
 
-export const withdrawAction = (from, amount) => {
+export const withdrawAction = (from, amount, currency) => {
   return {
     type: 'WITHDRAW',
-    payload: { from, amount },
+    payload: { from, amount, currency },
   };
 };
 
-export const transferAction = (from, to, amount) => {
+export const transferAction = (from, to, amount, currency) => {
   return {
     type: 'TRANSFER',
-    payload: { from, to, amount },
+    payload: { from, to, amount, currency },
   };
 };
 
@@ -44,5 +44,12 @@ export const changeAction = (id, currencyCode) => {
   return {
     type: 'CHANGE',
     payload: { id, currencyCode },
+  };
+};
+
+export const splitDepositAction = (depositIds, depositAmounts, currency) => {
+  return {
+    type: 'SPLIT_DEPOSIT',
+    payload: { depositIds, depositAmounts, currency },
   };
 };

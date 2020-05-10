@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import JarPropsTypes from 'models/Jar';
 import HistoryPropsTypes from 'models/History';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { makeStyles } from '@material-ui/core/styles';
 import HistoryIcon from '@material-ui/icons/EventNote';
+import AddIcon from '@material-ui/icons/Add';
+import DepositSplitter from 'components/DepositSplitter/DepositSplitter';
 import IconButton from 'components/IconButton/IconButton';
 import Modal from 'components/Modal/Modal';
 import Table from 'components/Table/Table';
@@ -17,7 +18,7 @@ const useStyles = makeStyles({
     },
   },
   icon: {
-    fontSize: '2.5rem',
+    fontSize: '4rem',
     color: '#fff',
   },
 });
@@ -48,12 +49,20 @@ const StyledItem = styled.div`
   }
 `;
 
-// eslint-disable-next-line no-unused-vars
 const Header = ({ jars, history }) => {
-  const [isModalOpen, setModalOpen] = useState(false);
+  const [isHistoryModalOpen, setHistoryModalOpen] = useState(false);
+  const [isDepositModalOpen, setDepositModalOpen] = useState(false);
 
   const displayHistory = () => {
-    setModalOpen(true);
+    setHistoryModalOpen(true);
+  };
+
+  const displayDepositWindow = () => {
+    setDepositModalOpen(true);
+  };
+
+  const getJarNameById = (id) => {
+    return jars.find((item) => item.id === id).name;
   };
 
   const classes = useStyles();
@@ -61,15 +70,20 @@ const Header = ({ jars, history }) => {
   return (
     <StyledWrapper>
       <StyledItem>
-        <IconButton width={50} onClickHandler={displayHistory} title="Wyświetl historię" light>
+        <IconButton onClickHandler={displayHistory} title="Wyświetl historię" light>
           <HistoryIcon className={classes.icon} />
+        </IconButton>
+      </StyledItem>
+      <StyledItem>
+        <IconButton onClickHandler={displayDepositWindow} title="Wpłać środki" light>
+          <AddIcon className={classes.icon} />
         </IconButton>
       </StyledItem>
       <Modal
         title="Historia transakcji"
-        isOpen={isModalOpen}
+        isOpen={isHistoryModalOpen}
         closeHandler={() => {
-          setModalOpen(false);
+          setHistoryModalOpen(false);
         }}
       >
         <Table
@@ -83,21 +97,34 @@ const Header = ({ jars, history }) => {
             { title: 'Waluta', field: 'currency' },
           ]}
           rows={history.map(({ from, to, currency, amount, ...rest }) => ({
-            from: from ? from.name : 'n.d.',
-            to: to ? to.name : 'n.d.',
-            currency: currency.name,
-            amount: `${amount} ${currency.code}`,
+            from: from ? getJarNameById(from) : 'n.d.',
+            to: to ? getJarNameById(to) : 'n.d.',
+            currency,
+            amount: `${amount / 100} ${currency}`,
             ...rest,
           }))}
           itemsToFilter={history.reduce(
             (acc, { from, to }) => [
               ...acc,
-              ...(from && !acc.includes(from.name) ? [from.name] : []),
-              ...(to && !acc.includes(to.name) ? [to.name] : []),
+              ...(from && !acc.includes(getJarNameById(from)) ? [getJarNameById(from)] : []),
+              ...(to && !acc.includes(getJarNameById(to)) ? [getJarNameById(to)] : []),
             ],
             [],
           )}
           keysToFilter={['from', 'to']}
+        />
+      </Modal>
+      <Modal
+        title="Rozłóż wpłatę pomiędzy słoiki"
+        isOpen={isDepositModalOpen}
+        closeHandler={() => {
+          setDepositModalOpen(false);
+        }}
+      >
+        <DepositSplitter
+          closeHandler={() => {
+            setDepositModalOpen(false);
+          }}
         />
       </Modal>
     </StyledWrapper>
@@ -105,7 +132,12 @@ const Header = ({ jars, history }) => {
 };
 
 Header.propTypes = {
-  jars: PropTypes.arrayOf(JarPropsTypes),
+  jars: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      name: PropTypes.string.isRequired,
+    }),
+  ),
   history: PropTypes.arrayOf(HistoryPropsTypes),
 };
 
@@ -115,7 +147,7 @@ Header.defaultProps = {
 };
 
 const mapStateToProps = ({ jars, history }) => {
-  return { jars, history };
+  return { jars: jars.map(({ id, name }) => ({ id, name })), history };
 };
 
 export default connect(mapStateToProps)(Header);

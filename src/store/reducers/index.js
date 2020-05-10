@@ -1,10 +1,10 @@
 const initialState = {
   jars: [
-    { id: 1, name: 'Główny', balance: 234.16, currency: { name: 'Dolar', code: 'USD' } },
-    { id: 2, name: 'Jedzenie', balance: 343.12, currency: { name: 'Złoty', code: 'PLN' } },
-    { id: 3, name: 'Na samochód', balance: 0, currency: { name: 'Rubel', code: 'RUB' } },
-    { id: 4, name: 'Podróze', balance: 455.4, currency: { name: 'Euro', code: 'EUR' } },
-    { id: 5, name: 'Edukacja', balance: 4300, currency: { name: 'Funt', code: 'PLN' } },
+    { id: 1, name: 'Główny', balance: 23416, currency: 'USD' },
+    { id: 2, name: 'Jedzenie', balance: 3432, currency: 'PLN' },
+    { id: 3, name: 'Na samochód', balance: 0, currency: 'RUB' },
+    { id: 4, name: 'Podróze', balance: 4554, currency: 'EUR' },
+    { id: 5, name: 'Edukacja', balance: 54300, currency: 'PLN' },
   ],
   history: [],
   currencies: [
@@ -19,6 +19,9 @@ const initialState = {
 };
 
 const rootReducer = (state = initialState, { type, payload }) => {
+  const lastHistoryId = state.history.length > 0 ? state.history[state.history.length - 1].id : 0;
+  const lastJarId = state.jars.length > 0 ? state.jars[state.jars.length - 1].id : 0;
+
   switch (type) {
     case 'ADD_JAR':
       return {
@@ -26,10 +29,10 @@ const rootReducer = (state = initialState, { type, payload }) => {
         jars: [
           ...state.jars,
           {
-            id: state.jars[state.jars.length - 1].id + 1,
-            balance: 0,
+            id: lastJarId + 1,
             name: 'Bez nazwy',
-            currency: state.currencies[0],
+            balance: 0,
+            currency: state.currencies[0].code,
           },
         ],
       };
@@ -50,19 +53,20 @@ const rootReducer = (state = initialState, { type, payload }) => {
       return {
         ...state,
         jars: state.jars.map(({ balance, ...rest }) => {
-          if (rest.id === payload.to.id) return { balance: balance + payload.amount, ...rest };
+          if (rest.id === payload.to)
+            return { balance: balance + Math.round(payload.amount * 100), ...rest };
           return { balance, ...rest };
         }),
         history: [
           ...state.history,
           {
-            id: state.history.length > 0 ? state.history[state.history.length - 1].id + 1 : 1,
+            id: lastHistoryId + 1,
             date: new Date(),
             operation: type,
             from: payload.from,
             to: payload.to,
-            amount: payload.amount,
-            currency: payload.to.currency,
+            amount: Math.round(payload.amount * 100),
+            currency: payload.currency,
           },
         ],
       };
@@ -70,19 +74,20 @@ const rootReducer = (state = initialState, { type, payload }) => {
       return {
         ...state,
         jars: state.jars.map(({ balance, ...rest }) => {
-          if (rest.id === payload.from.id) return { balance: balance - payload.amount, ...rest };
+          if (rest.id === payload.from)
+            return { balance: balance - Math.round(payload.amount * 100), ...rest };
           return { balance, ...rest };
         }),
         history: [
           ...state.history,
           {
-            id: state.history.length > 0 ? state.history[state.history.length - 1].id + 1 : 1,
+            id: lastHistoryId + 1,
             date: new Date(),
             operation: type,
             from: payload.from,
             to: payload.to,
-            amount: payload.amount,
-            currency: payload.from.currency,
+            amount: Math.round(payload.amount * 100),
+            currency: payload.currency,
           },
         ],
       };
@@ -90,20 +95,22 @@ const rootReducer = (state = initialState, { type, payload }) => {
       return {
         ...state,
         jars: state.jars.map(({ balance, ...rest }) => {
-          if (rest.id === payload.from.id) return { balance: balance - payload.amount, ...rest };
-          if (rest.id === payload.to.id) return { balance: balance + payload.amount, ...rest };
+          if (rest.id === payload.from)
+            return { balance: balance - Math.round(payload.amount * 100), ...rest };
+          if (rest.id === payload.to)
+            return { balance: balance + Math.round(payload.amount * 100), ...rest };
           return { balance, ...rest };
         }),
         history: [
           ...state.history,
           {
-            id: state.history.length > 0 ? state.history[state.history.length - 1].id + 1 : 1,
+            id: lastHistoryId + 1,
             date: new Date(),
             operation: type,
             from: payload.from,
             to: payload.to,
-            amount: payload.amount,
-            currency: payload.from.currency,
+            amount: Math.round(payload.amount * 100),
+            currency: payload.currency,
           },
         ],
       };
@@ -114,13 +121,39 @@ const rootReducer = (state = initialState, { type, payload }) => {
           if (item.id === payload.id)
             return {
               ...item,
-              currency: state.currencies.find(({ code }) => code === payload.currencyCode),
+              currency: payload.currencyCode,
             };
           return item;
         }),
       };
     default:
       return state;
+    case 'SPLIT_DEPOSIT':
+      return {
+        ...state,
+        jars: state.jars.map(({ balance, ...rest }) => {
+          if (payload.depositIds.includes(rest.id))
+            return {
+              balance:
+                balance +
+                Math.round(payload.depositAmounts[payload.depositIds.indexOf(rest.id)] * 100),
+              ...rest,
+            };
+          return { balance, ...rest };
+        }),
+        history: [
+          ...state.history,
+          ...payload.depositIds.map((item, index) => ({
+            id: lastHistoryId + 1 + index,
+            date: new Date(),
+            operation: type,
+            from: payload.from,
+            to: item,
+            amount: Math.round(payload.depositAmounts[index] * 100),
+            currency: payload.currency,
+          })),
+        ],
+      };
   }
 };
 
