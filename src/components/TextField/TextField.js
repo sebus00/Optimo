@@ -18,6 +18,7 @@ const TextFieldComponent = ({
   blurHandler,
   inputProps,
   suffix,
+  type,
   ...props
 }) => {
   const classes = useStyles(props);
@@ -33,6 +34,7 @@ const TextFieldComponent = ({
         }),
         inputProps,
       }}
+      type={type}
       value={value}
       onChange={changeHandler}
       onBlur={blurHandler}
@@ -48,6 +50,7 @@ TextFieldComponent.propTypes = {
   blurHandler: PropTypes.func,
   inputProps: PropTypes.object,
   suffix: PropTypes.string,
+  type: PropTypes.string,
 };
 
 TextFieldComponent.defaultProps = {
@@ -55,6 +58,7 @@ TextFieldComponent.defaultProps = {
   blurHandler: null,
   inputProps: {},
   suffix: '',
+  type: 'text',
 };
 
 export default TextFieldComponent;

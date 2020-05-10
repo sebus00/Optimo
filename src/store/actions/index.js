@@ -39,3 +39,10 @@ export const transferAction = (from, to, amount) => {
     payload: { from, to, amount },
   };
 };
+
+export const changeAction = (id, currency) => {
+  return {
+    type: 'CHANGE',
+    payload: { id, currency },
+  };
+};

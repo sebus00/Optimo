@@ -107,6 +107,14 @@ const rootReducer = (state = initialState, { type, payload }) => {
           },
         ],
       };
+    case 'CHANGE':
+      return {
+        ...state,
+        jars: state.jars.map((item) => {
+          if (item.id === payload.id) return { ...item, currency: payload.currency };
+          return item;
+        }),
+      };
     default:
       return state;
   }

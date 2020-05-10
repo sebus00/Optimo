@@ -40,6 +40,8 @@ const OperationWindow = ({
   };
 
   const handleInputChange = (event) => {
+    // eslint-disable-next-line no-param-reassign
+    event.target.value = Number(event.target.value);
     setOperationAmount(event.target.value === '' ? 0 : Number(event.target.value));
   };
 
@@ -70,19 +72,21 @@ const OperationWindow = ({
         value={operationAmount}
         changeHandler={handleInputChange}
         blurHandler={handleInputBlur}
+        type="number"
         inputProps={{
           min: 0,
           ...(max && {
             max,
           }),
-          type: 'number',
           'aria-labelledby': 'transfer-input-slider',
         }}
         suffix={currency}
       />
       <StyledRow>
         <Button onClick={cancel}>Anuluj</Button>
-        <Button onClick={confirm}>Zatwierdź</Button>
+        <Button disabled={operationAmount === 0} onClick={confirm}>
+          Zatwierdź
+        </Button>
       </StyledRow>
     </StyledWrapper>
   );

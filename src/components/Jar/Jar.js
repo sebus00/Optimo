@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import JarPropsTypes from 'models/Jar';
 import HistoryPropsTypes from 'models/History';
 import { connect } from 'react-redux';
-import { deleteAction, editAction } from 'store/actions';
+import { deleteAction, editAction, changeAction } from 'store/actions';
 import styled from 'styled-components';
 import NumberFormat from 'react-number-format';
 import cx from 'classnames';
@@ -13,6 +13,7 @@ import { ReactComponent as TransferIcon } from 'assets/icons/transfer.svg';
 import { ReactComponent as RemoveIcon } from 'assets/icons/bin.svg';
 import { ReactComponent as EditIcon } from 'assets/icons/edit.svg';
 import { ReactComponent as HistoryIcon } from 'assets/icons/history.svg';
+import { ReactComponent as ChangeIcon } from 'assets/icons/change.svg';
 import OperationWindow from 'components/Jar/OperationWindow';
 import IconButton from 'components/IconButton/IconButton';
 import TextField from 'components/TextField/TextField';
@@ -263,6 +264,14 @@ const Jar = ({
           >
             <HistoryIcon width="100%" height="100%" />
           </IconButton>
+          <IconButton
+            width={50}
+            disabled={state.step !== 0 || balance !== 0}
+            // onClickHandler={changeCurrencyStart}
+            title="Zmień walutę"
+          >
+            <ChangeIcon width="100%" height="100%" />
+          </IconButton>
         </StyledRow>
       </StyledLeftSection>
       <StyledButtonsColumn>
@@ -358,6 +367,7 @@ const mapStateToProps = ({ jars, history }, { jar: { id } }) => {
 const mapDispatchToProps = (dispatch) => ({
   deleteJar: (jarId) => dispatch(deleteAction(jarId)),
   editJar: (jarId, newName) => dispatch(editAction(jarId, newName)),
+  changeCurrency: (jarId, newCurrency) => dispatch(changeAction(jarId, newCurrency)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Jar);
