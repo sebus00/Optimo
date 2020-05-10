@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import JarPropsTypes from 'models/Jar';
 import { connect } from 'react-redux';
-import { depositAction, withdrawAction, transferAction } from 'store/actions';
+import { transferAction } from 'store/actions';
 import styled from 'styled-components';
 import Jar from 'components/Jar/Jar';
 import NewJar from 'components/Jar/NewJar';
@@ -15,14 +15,14 @@ const StyledWrapper = styled.div`
   grid-gap: 50px;
 `;
 
-const Managment = ({ jars, transferMoney, deposit, withdraw }) => {
+const Managment = ({ jars, transferMoney }) => {
   const [state, setState] = useState({ step: 0, from: null, to: null });
 
   const restartState = () => {
     setState({ step: 0, from: null, to: null });
   };
 
-  const changeState = (newStep, target = null, ...rest) => {
+  const changeState = (newStep, target = null, amount = 0) => {
     switch (newStep) {
       case 0: // no action
         break;
@@ -37,28 +37,16 @@ const Managment = ({ jars, transferMoney, deposit, withdraw }) => {
         });
         break;
       case 3: // transfer confirmed
-        transferMoney(state.from, state.to, rest[0]);
+        transferMoney(state.from, state.to, amount);
         restartState();
         break;
-      case 4: // deposit started
-        setState({ ...state, step: newStep, to: target });
-        break;
-      case 5: // deposit confirmed
-        deposit(state.to, rest[0]);
-        restartState();
-        break;
-      case 6: // withdrawal started
+      case 4: // any other operation started
         setState({
           ...state,
           step: newStep,
-          from: target,
         });
         break;
-      case 7: // withdrawal confirmed
-        withdraw(state.from, rest[0]);
-        restartState();
-        break;
-      case 8:
+      case 5: // any operation ended or cancelled
         restartState();
         break;
       default:
@@ -79,8 +67,6 @@ const Managment = ({ jars, transferMoney, deposit, withdraw }) => {
 Managment.propTypes = {
   jars: PropTypes.arrayOf(JarPropsTypes),
   transferMoney: PropTypes.func.isRequired,
-  deposit: PropTypes.func.isRequired,
-  withdraw: PropTypes.func.isRequired,
 };
 
 Managment.defaultProps = {
@@ -92,8 +78,6 @@ const mapStateToProps = ({ jars }) => {
 };
 
 const mapDispatchToProps = (dispatch) => ({
-  deposit: (receiver, amount) => dispatch(depositAction(receiver, amount)),
-  withdraw: (sender, amount) => dispatch(withdrawAction(sender, amount)),
   transferMoney: (sender, receiver, amount) => dispatch(transferAction(sender, receiver, amount)),
 });
 

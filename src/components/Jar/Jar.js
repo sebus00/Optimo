@@ -2,8 +2,15 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import JarPropsTypes from 'models/Jar';
 import HistoryPropsTypes from 'models/History';
+import CurrenciesPropsTypes from 'models/Currency';
 import { connect } from 'react-redux';
-import { deleteAction, editAction, changeAction } from 'store/actions';
+import {
+  deleteAction,
+  editAction,
+  changeAction,
+  depositAction,
+  withdrawAction,
+} from 'store/actions';
 import styled from 'styled-components';
 import NumberFormat from 'react-number-format';
 import cx from 'classnames';
@@ -14,9 +21,11 @@ import { ReactComponent as RemoveIcon } from 'assets/icons/bin.svg';
 import { ReactComponent as EditIcon } from 'assets/icons/edit.svg';
 import { ReactComponent as HistoryIcon } from 'assets/icons/history.svg';
 import { ReactComponent as ChangeIcon } from 'assets/icons/change.svg';
+import CloseIcon from '@material-ui/icons/Close';
 import OperationWindow from 'components/Jar/OperationWindow';
 import IconButton from 'components/IconButton/IconButton';
 import TextField from 'components/TextField/TextField';
+import Select from 'components/Select/Select';
 import Modal from 'components/Modal/Modal';
 import Table from 'components/Table/Table';
 import Box from '@material-ui/core/Box';
@@ -113,19 +122,40 @@ const StyledBalance = styled.div`
   font-size: 1.9rem;
 `;
 
+const StyledSelectWrapper = styled.div`
+  position: absolute;
+  width: 180px;
+  height: 80px;
+  background-color: #fff;
+  left: 10px;
+  bottom: 0;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+`;
+
 const Jar = ({
   jar,
   jar: { id, name, balance, currency },
   history,
+  currencies,
   state,
   stateChangeHandler,
   deleteJar,
   editJar,
+  changeCurrency,
+  deposit,
+  withdraw,
   count,
 }) => {
   const [operationAmount, setOperationAmount] = useState(0);
-  const [newName, setNewName] = useState(name);
   const [isEditingActive, setEditingActive] = useState(false);
+  const [newName, setNewName] = useState(name);
+  const [isWithdrawActive, setWithdrawActive] = useState(false);
+  const [isDepositActive, setDepositActive] = useState(false);
+  const [isChangeCurrencyActive, setChangeCurrencyActive] = useState(false);
+  const [newCurrency, setNewCurrency] = useState(currency.code);
   const [isModalOpen, setModalOpen] = useState(false);
 
   const transferStart = () => {
@@ -142,27 +172,43 @@ const Jar = ({
     setOperationAmount(0);
   };
 
+  const endOperation = () => {
+    stateChangeHandler(5);
+    setWithdrawActive(false);
+    setDepositActive(false);
+    setChangeCurrencyActive(false);
+    setOperationAmount(0);
+  };
+
   const depositStart = () => {
-    stateChangeHandler(4, jar);
+    stateChangeHandler(4);
+    setDepositActive(true);
   };
 
   const confirmDeposit = () => {
-    stateChangeHandler(5, 0, operationAmount);
-    setOperationAmount(0);
+    deposit(jar, operationAmount);
+    endOperation();
   };
 
   const withdrawStart = () => {
-    stateChangeHandler(6, jar);
+    stateChangeHandler(4);
+    setWithdrawActive(true);
   };
 
   const confirmWithdraw = () => {
-    stateChangeHandler(7, 0, operationAmount);
-    setOperationAmount(0);
+    withdraw(jar, operationAmount);
+    endOperation();
   };
 
-  const cancelOperation = () => {
-    stateChangeHandler(8);
-    setOperationAmount(0);
+  const startChangeCurrency = () => {
+    stateChangeHandler(4);
+    setChangeCurrencyActive(true);
+  };
+
+  const confirmChangeCurrency = (value) => {
+    setNewCurrency(value);
+    changeCurrency(id, value);
+    endOperation();
   };
 
   const handleEditKeyDown = ({ keyCode }) => {
@@ -197,9 +243,10 @@ const Jar = ({
         <Table
           columns={[
             { title: 'Id', field: 'id' },
-            { title: 'Date', field: 'date' },
-            { title: 'Operation', field: 'operation' },
-            { title: 'Amount', field: 'amount' },
+            { title: 'Data', field: 'date' },
+            { title: 'Operacja', field: 'operation' },
+            { title: 'Kwota', field: 'amount' },
+            { title: 'Waluta', field: 'currency' },
           ]}
           rows={history.map(({ operation, ...rest }) => ({
             operation:
@@ -209,6 +256,7 @@ const Jar = ({
                 ? 'TRANSFER OUT'
                 : 'TRANSFER IN',
             ...rest,
+            currency: rest.currency.name,
           }))}
         />
       </Modal>
@@ -267,7 +315,7 @@ const Jar = ({
           <IconButton
             width={50}
             disabled={state.step !== 0 || balance !== 0}
-            // onClickHandler={changeCurrencyStart}
+            onClickHandler={startChangeCurrency}
             title="Zmień walutę"
           >
             <ChangeIcon width="100%" height="100%" />
@@ -309,31 +357,43 @@ const Jar = ({
           operationAmount={operationAmount}
           setOperationAmount={setOperationAmount}
           max={state.from.balance}
-          cancel={cancelOperation}
+          cancel={endOperation}
           confirm={confirmTransfer}
           currency={currency.code}
         />
       )}
-      {state.step === 4 && state.to.id === id && (
+      {state.step === 4 && isDepositActive && (
         <OperationWindow
           label="Podaj kwotę doładowania"
           operationAmount={operationAmount}
           setOperationAmount={setOperationAmount}
-          cancel={cancelOperation}
+          cancel={endOperation}
           confirm={confirmDeposit}
           currency={currency.code}
         />
       )}
-      {state.step === 6 && state.from.id === id && (
+      {state.step === 4 && isWithdrawActive && (
         <OperationWindow
           label="Podaj wypłacaną kwotę"
           operationAmount={operationAmount}
           setOperationAmount={setOperationAmount}
           max={balance}
-          cancel={cancelOperation}
+          cancel={endOperation}
           confirm={confirmWithdraw}
           currency={currency.code}
         />
+      )}
+      {state.step === 4 && isChangeCurrencyActive && (
+        <StyledSelectWrapper>
+          <Select
+            value={newCurrency}
+            changeHandler={({ target: { value } }) => confirmChangeCurrency(value)}
+            items={currencies.map((item) => ({ name: item.name, value: item.code }))}
+          />
+          <IconButton width={55} onClickHandler={endOperation} title="Anuluj">
+            <CloseIcon width="100%" height="100%" />
+          </IconButton>
+        </StyledSelectWrapper>
       )}
     </StyledWrapper>
   );
@@ -342,6 +402,7 @@ const Jar = ({
 Jar.propTypes = {
   jar: JarPropsTypes.isRequired,
   history: PropTypes.arrayOf(HistoryPropsTypes),
+  currencies: PropTypes.arrayOf(CurrenciesPropsTypes),
   state: PropTypes.shape({
     step: PropTypes.number.isRequired,
     from: JarPropsTypes,
@@ -350,16 +411,23 @@ Jar.propTypes = {
   stateChangeHandler: PropTypes.func.isRequired,
   deleteJar: PropTypes.func.isRequired,
   editJar: PropTypes.func.isRequired,
+  changeCurrency: PropTypes.func.isRequired,
+  deposit: PropTypes.func.isRequired,
+  withdraw: PropTypes.func.isRequired,
   count: PropTypes.number.isRequired,
 };
 
 Jar.defaultProps = {
   history: [],
+  currencies: [],
 };
 
-const mapStateToProps = ({ jars, history }, { jar: { id } }) => {
+const mapStateToProps = ({ jars, history, currencies }, { jar: { id } }) => {
   return {
-    history: history.filter(({ from, to }) => [from, to].includes(id)),
+    history: history.filter(({ from, to }) =>
+      [...(from ? [from.id] : []), ...(to ? [to.id] : [])].includes(id),
+    ),
+    currencies,
     count: jars.length,
   };
 };
@@ -368,6 +436,8 @@ const mapDispatchToProps = (dispatch) => ({
   deleteJar: (jarId) => dispatch(deleteAction(jarId)),
   editJar: (jarId, newName) => dispatch(editAction(jarId, newName)),
   changeCurrency: (jarId, newCurrency) => dispatch(changeAction(jarId, newCurrency)),
+  deposit: (receiver, amount) => dispatch(depositAction(receiver, amount)),
+  withdraw: (sender, amount) => dispatch(withdrawAction(sender, amount)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Jar);

@@ -40,9 +40,9 @@ export const transferAction = (from, to, amount) => {
   };
 };
 
-export const changeAction = (id, currency) => {
+export const changeAction = (id, currencyCode) => {
   return {
     type: 'CHANGE',
-    payload: { id, currency },
+    payload: { id, currencyCode },
   };
 };

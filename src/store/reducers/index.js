@@ -111,7 +111,11 @@ const rootReducer = (state = initialState, { type, payload }) => {
       return {
         ...state,
         jars: state.jars.map((item) => {
-          if (item.id === payload.id) return { ...item, currency: payload.currency };
+          if (item.id === payload.id)
+            return {
+              ...item,
+              currency: state.currencies.find(({ code }) => code === payload.currencyCode),
+            };
           return item;
         }),
       };

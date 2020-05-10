@@ -93,15 +93,17 @@ const Header = ({ jars, history }) => {
         <Table
           columns={[
             { title: 'Id', field: 'id' },
-            { title: 'Date', field: 'date' },
-            { title: 'Operation', field: 'operation' },
+            { title: 'Data', field: 'date' },
+            { title: 'Operacja', field: 'operation' },
             { title: 'Z', field: 'from' },
             { title: 'Do', field: 'to' },
-            { title: 'Amount', field: 'amount' },
+            { title: 'Kwota', field: 'amount' },
+            { title: 'Waluta', field: 'currency' },
           ]}
-          rows={history.map(({ from, to, ...rest }) => ({
+          rows={history.map(({ from, to, currency, ...rest }) => ({
             from: from ? from.name : 'n.d.',
             to: to ? to.name : 'n.d.',
+            currency: currency.name,
             ...rest,
           }))}
         />
