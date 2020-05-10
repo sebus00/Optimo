@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import JarPropsTypes from 'models/Jar';
+import HistoryPropsTypes from 'models/History';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { makeStyles } from '@material-ui/core/styles';
@@ -58,8 +60,6 @@ const Header = ({ jars, history }) => {
     setModalOpen(true);
   };
 
-  const getJarById = (targetId) => jars.find(({ id }) => id === targetId);
-
   const classes = useStyles();
 
   return (
@@ -100,8 +100,8 @@ const Header = ({ jars, history }) => {
             { title: 'Amount', field: 'amount' },
           ]}
           rows={history.map(({ from, to, ...rest }) => ({
-            from: from ? getJarById(from).name : 'n.d.',
-            to: to ? getJarById(to).name : 'n.d.',
+            from: from ? from.name : 'n.d.',
+            to: to ? to.name : 'n.d.',
             ...rest,
           }))}
         />
@@ -111,21 +111,8 @@ const Header = ({ jars, history }) => {
 };
 
 Header.propTypes = {
-  jars: PropTypes.arrayOf(
-    PropTypes.shape({
-      balance: PropTypes.number,
-    }),
-  ),
-  history: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      date: PropTypes.instanceOf(Date),
-      operation: PropTypes.string.isRequired,
-      from: PropTypes.number,
-      to: PropTypes.number,
-      amount: PropTypes.number.isRequired,
-    }),
-  ),
+  jars: PropTypes.arrayOf(JarPropsTypes),
+  history: PropTypes.arrayOf(HistoryPropsTypes),
 };
 
 Header.defaultProps = {

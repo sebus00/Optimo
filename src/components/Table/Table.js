@@ -30,6 +30,12 @@ const useStyles = makeStyles({
     position: 'relative',
     paddingLeft: '1rem',
     whiteSpace: 'nowrap',
+    '&:hover': {
+      opacity: 0.7,
+      '& svg': {
+        opacity: 0.5,
+      },
+    },
   },
   icon: {
     position: 'absolute',
@@ -39,7 +45,7 @@ const useStyles = makeStyles({
     opacity: 0,
     transform: ({ ascendOrder }) => (ascendOrder ? 'none' : 'rotate(180deg)'),
     '&.visible': {
-      opacity: 1,
+      opacity: '1 !important',
     },
   },
   transferIcon: {

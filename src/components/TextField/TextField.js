@@ -1,8 +1,8 @@
-/* eslint-disable react/forbid-prop-types */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
+import InputAdornment from '@material-ui/core/InputAdornment';
 
 const useStyles = makeStyles({
   textField: {
@@ -17,6 +17,7 @@ const TextFieldComponent = ({
   keyDownHandler,
   blurHandler,
   inputProps,
+  suffix,
   ...props
 }) => {
   const classes = useStyles(props);
@@ -27,6 +28,9 @@ const TextFieldComponent = ({
         classes: {
           root: classes.textField,
         },
+        ...(suffix && {
+          endAdornment: <InputAdornment position="end">{suffix}</InputAdornment>,
+        }),
         inputProps,
       }}
       value={value}
@@ -43,12 +47,14 @@ TextFieldComponent.propTypes = {
   keyDownHandler: PropTypes.func,
   blurHandler: PropTypes.func,
   inputProps: PropTypes.object,
+  suffix: PropTypes.string,
 };
 
 TextFieldComponent.defaultProps = {
   keyDownHandler: null,
   blurHandler: null,
   inputProps: {},
+  suffix: '',
 };
 
 export default TextFieldComponent;

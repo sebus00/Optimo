@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import JarPropsTypes from 'models/Jar';
+import HistoryPropsTypes from 'models/History';
 import { connect } from 'react-redux';
 import { deleteAction, editAction } from 'store/actions';
 import styled from 'styled-components';
@@ -32,19 +34,6 @@ const StyledWrapper = styled(Box)`
   box-shadow: 0 0.5em 1em -0.125em rgba(10, 10, 10, 0.1), 0 0px 0 1px rgba(10, 10, 10, 0.02);
   background-color: #fff;
 
-  :before {
-    content: '';
-    display: none;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-color: green;
-    cursor: pointer;
-    left: 0;
-    top: 0;
-    opacity: 0;
-  }
-
   @keyframes pulse {
     0% {
       box-shadow: 0 0.5em 1em -0.125em rgba(10, 10, 10, 0.1), 0 0px 0 1px rgba(10, 10, 10, 0.02);
@@ -58,11 +47,8 @@ const StyledWrapper = styled(Box)`
   }
 
   &.transfer-target {
+    cursor: pointer;
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
-
-    :before {
-      display: block;
-    }
   }
 `;
 
@@ -127,9 +113,8 @@ const StyledBalance = styled.div`
 `;
 
 const Jar = ({
-  id,
-  name,
-  balance,
+  jar,
+  jar: { id, name, balance, currency },
   history,
   state,
   stateChangeHandler,
@@ -143,11 +128,12 @@ const Jar = ({
   const [isModalOpen, setModalOpen] = useState(false);
 
   const transferStart = () => {
-    stateChangeHandler(1, id);
+    stateChangeHandler(1, jar);
   };
   const hasChoosen = () => {
-    if (state.step !== 1 || state.from.id === id) return;
-    stateChangeHandler(2, id);
+    if (state.step !== 1 || state.from.id === id || state.from.currency.code !== currency.code)
+      return;
+    stateChangeHandler(2, jar);
   };
 
   const confirmTransfer = () => {
@@ -156,7 +142,7 @@ const Jar = ({
   };
 
   const depositStart = () => {
-    stateChangeHandler(4, id);
+    stateChangeHandler(4, jar);
   };
 
   const confirmDeposit = () => {
@@ -165,7 +151,7 @@ const Jar = ({
   };
 
   const withdrawStart = () => {
-    stateChangeHandler(6, id);
+    stateChangeHandler(6, jar);
   };
 
   const confirmWithdraw = () => {
@@ -195,7 +181,8 @@ const Jar = ({
   return (
     <StyledWrapper
       className={cx({
-        'transfer-target': state.step === 1 && state.from.id !== id,
+        'transfer-target':
+          state.step === 1 && state.from.id !== id && state.from.currency.code === currency.code,
       })}
       onClick={hasChoosen}
     >
@@ -256,7 +243,7 @@ const Jar = ({
           value={balance.toFixed(2)}
           displayType="text"
           thousandSeparator
-          prefix="$"
+          suffix={` ${currency.code}`}
           renderText={(value) => <StyledBalance>{value}</StyledBalance>}
         />
         <StyledRow>
@@ -315,6 +302,7 @@ const Jar = ({
           max={state.from.balance}
           cancel={cancelOperation}
           confirm={confirmTransfer}
+          currency={currency.code}
         />
       )}
       {state.step === 4 && state.to.id === id && (
@@ -324,6 +312,7 @@ const Jar = ({
           setOperationAmount={setOperationAmount}
           cancel={cancelOperation}
           confirm={confirmDeposit}
+          currency={currency.code}
         />
       )}
       {state.step === 6 && state.from.id === id && (
@@ -334,6 +323,7 @@ const Jar = ({
           max={balance}
           cancel={cancelOperation}
           confirm={confirmWithdraw}
+          currency={currency.code}
         />
       )}
     </StyledWrapper>
@@ -341,31 +331,12 @@ const Jar = ({
 };
 
 Jar.propTypes = {
-  id: PropTypes.number.isRequired,
-  name: PropTypes.string,
-  balance: PropTypes.number.isRequired,
-  history: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      date: PropTypes.instanceOf(Date),
-      operation: PropTypes.string.isRequired,
-      from: PropTypes.number,
-      to: PropTypes.number,
-      amount: PropTypes.number.isRequired,
-    }),
-  ).isRequired,
+  jar: JarPropsTypes.isRequired,
+  history: PropTypes.arrayOf(HistoryPropsTypes),
   state: PropTypes.shape({
     step: PropTypes.number.isRequired,
-    from: PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      name: PropTypes.string.isRequired,
-      balance: PropTypes.number.isRequired,
-    }),
-    to: PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      name: PropTypes.string.isRequired,
-      balance: PropTypes.number.isRequired,
-    }),
+    from: JarPropsTypes,
+    to: JarPropsTypes,
   }).isRequired,
   stateChangeHandler: PropTypes.func.isRequired,
   deleteJar: PropTypes.func.isRequired,
@@ -374,14 +345,11 @@ Jar.propTypes = {
 };
 
 Jar.defaultProps = {
-  name: 'Słoik bez nazwy',
+  history: [],
 };
 
-const mapStateToProps = ({ jars, history }, { id }) => {
-  const jar = jars.find((item) => item.id === id);
+const mapStateToProps = ({ jars, history }, { jar: { id } }) => {
   return {
-    name: jar.name,
-    balance: jar.balance,
     history: history.filter(({ from, to }) => [from, to].includes(id)),
     count: jars.length,
   };

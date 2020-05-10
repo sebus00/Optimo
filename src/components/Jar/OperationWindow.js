@@ -26,7 +26,15 @@ const StyledRow = styled.div`
   margin-top: 20px;
 `;
 
-const OperationWindow = ({ label, operationAmount, setOperationAmount, max, cancel, confirm }) => {
+const OperationWindow = ({
+  label,
+  operationAmount,
+  setOperationAmount,
+  max,
+  cancel,
+  confirm,
+  currency,
+}) => {
   const handleSliderChange = (event, value) => {
     setOperationAmount(value);
   };
@@ -70,6 +78,7 @@ const OperationWindow = ({ label, operationAmount, setOperationAmount, max, canc
           type: 'number',
           'aria-labelledby': 'transfer-input-slider',
         }}
+        suffix={currency}
       />
       <StyledRow>
         <Button onClick={cancel}>Anuluj</Button>
@@ -86,10 +95,12 @@ OperationWindow.propTypes = {
   max: PropTypes.number,
   cancel: PropTypes.func.isRequired,
   confirm: PropTypes.func.isRequired,
+  currency: PropTypes.string,
 };
 
 OperationWindow.defaultProps = {
   max: null,
+  currency: '',
 };
 
 export default OperationWindow;
