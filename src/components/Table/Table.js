@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
+import styled from 'styled-components';
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -11,7 +12,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
-// import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
+import Select from 'components/Select/Select';
 
 const useStyles = makeStyles({
   table: {
@@ -48,22 +49,16 @@ const useStyles = makeStyles({
       opacity: '1 !important',
     },
   },
-  transferIcon: {
-    fontSize: '2.3rem',
-    color: 'green',
-    position: 'absolute',
-    top: '0.4rem',
-    marginLeft: '5px',
-    '&.reversed': {
-      color: 'red',
-      transform: 'rotate(180deg)',
-    },
-  },
 });
 
-const TableComponent = ({ columns, rows }) => {
+const StyledSelectWrapper = styled.div`
+  margin: 5px 20px 20px;
+`;
+
+const TableComponent = ({ columns, rows, itemsToFilter, keysToFilter }) => {
   const [sortKey, setSortKey] = useState('id');
   const [ascendOrder, setAscendOrder] = useState(false);
+  const [filter, setFilter] = useState('');
 
   const sortTable = (field) => {
     if (sortKey !== field) {
@@ -73,10 +68,25 @@ const TableComponent = ({ columns, rows }) => {
       setAscendOrder(!ascendOrder);
     }
   };
+
   const classes = useStyles({ ascendOrder });
 
   return (
     <TableContainer component={Paper}>
+      {itemsToFilter.length > 0 && (
+        <StyledSelectWrapper>
+          <Select
+            label="Nazwa słoika"
+            helperText="Sortuj po nazwie"
+            value={filter}
+            changeHandler={({ target: { value } }) => setFilter(value)}
+            items={[
+              { name: 'Wszystkie', value: '' },
+              ...itemsToFilter.map((item) => ({ name: item, value: item })),
+            ]}
+          />
+        </StyledSelectWrapper>
+      )}
       <Table className={classes.table} size="small">
         <TableHead>
           <TableRow>
@@ -105,6 +115,9 @@ const TableComponent = ({ columns, rows }) => {
         <TableBody>
           {[]
             .concat(rows)
+            .filter((item) =>
+              filter ? keysToFilter.map((key) => item[key]).includes(filter) : item,
+            )
             .sort((a, b) =>
               a[sortKey] > b[sortKey] ? (ascendOrder ? 1 : -1) : ascendOrder ? -1 : 1,
             )
@@ -131,10 +144,14 @@ TableComponent.propTypes = {
     }),
   ).isRequired,
   rows: PropTypes.array,
+  itemsToFilter: PropTypes.array,
+  keysToFilter: PropTypes.arrayOf(PropTypes.string),
 };
 
 TableComponent.defaultProps = {
   rows: [],
+  itemsToFilter: [],
+  keysToFilter: [],
 };
 
 export default TableComponent;

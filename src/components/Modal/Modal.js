@@ -8,6 +8,8 @@ const useStyles = makeStyles({
   dialog: {
     maxHeight: '90vh',
     width: '100%',
+    padding: '20px',
+    maxWidth: 900,
   },
   title: {
     '& h2': {

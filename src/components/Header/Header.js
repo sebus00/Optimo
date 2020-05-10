@@ -5,7 +5,6 @@ import HistoryPropsTypes from 'models/History';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { makeStyles } from '@material-ui/core/styles';
-import NumberFormat from 'react-number-format';
 import HistoryIcon from '@material-ui/icons/EventNote';
 import IconButton from 'components/IconButton/IconButton';
 import Modal from 'components/Modal/Modal';
@@ -49,11 +48,8 @@ const StyledItem = styled.div`
   }
 `;
 
+// eslint-disable-next-line no-unused-vars
 const Header = ({ jars, history }) => {
-  const totalBalance = jars.reduce((acc, { balance }) => {
-    return acc + balance;
-  }, 0);
-
   const [isModalOpen, setModalOpen] = useState(false);
 
   const displayHistory = () => {
@@ -64,20 +60,6 @@ const Header = ({ jars, history }) => {
 
   return (
     <StyledWrapper>
-      <StyledItem>
-        Bilans:
-        <NumberFormat
-          value={totalBalance.toFixed(2)}
-          displayType="text"
-          thousandSeparator
-          prefix="$"
-          renderText={(item) => <span>{item}</span>}
-        />
-      </StyledItem>
-      <StyledItem>
-        Ilość słoików:
-        <span>{jars.length}</span>
-      </StyledItem>
       <StyledItem>
         <IconButton width={50} onClickHandler={displayHistory} title="Wyświetl historię" light>
           <HistoryIcon className={classes.icon} />
@@ -100,12 +82,22 @@ const Header = ({ jars, history }) => {
             { title: 'Kwota', field: 'amount' },
             { title: 'Waluta', field: 'currency' },
           ]}
-          rows={history.map(({ from, to, currency, ...rest }) => ({
+          rows={history.map(({ from, to, currency, amount, ...rest }) => ({
             from: from ? from.name : 'n.d.',
             to: to ? to.name : 'n.d.',
             currency: currency.name,
+            amount: `${amount} ${currency.code}`,
             ...rest,
           }))}
+          itemsToFilter={history.reduce(
+            (acc, { from, to }) => [
+              ...acc,
+              ...(from && !acc.includes(from.name) ? [from.name] : []),
+              ...(to && !acc.includes(to.name) ? [to.name] : []),
+            ],
+            [],
+          )}
+          keysToFilter={['from', 'to']}
         />
       </Modal>
     </StyledWrapper>

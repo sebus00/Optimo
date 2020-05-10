@@ -256,6 +256,7 @@ const Jar = ({
                 ? 'TRANSFER OUT'
                 : 'TRANSFER IN',
             ...rest,
+            amount: `${rest.amount} ${rest.currency.code}`,
             currency: rest.currency.name,
           }))}
         />
@@ -386,6 +387,8 @@ const Jar = ({
       {state.step === 4 && isChangeCurrencyActive && (
         <StyledSelectWrapper>
           <Select
+            label="waluta"
+            helperText="Wybierz walutę"
             value={newCurrency}
             changeHandler={({ target: { value } }) => confirmChangeCurrency(value)}
             items={currencies.map((item) => ({ name: item.name, value: item.code }))}

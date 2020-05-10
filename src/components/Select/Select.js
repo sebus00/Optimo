@@ -26,13 +26,13 @@ const useStyles = makeStyles({
   },
 });
 
-const SelectComponent = ({ value, changeHandler, items, ...props }) => {
+const SelectComponent = ({ label, helperText, value, changeHandler, items, ...props }) => {
   const classes = useStyles(props);
 
   return (
     <FormControl className={classes.formControl}>
       <InputLabel className={classes.label} id="select-helper-label">
-        Waluta
+        {label}
       </InputLabel>
       <Select
         className={classes.select}
@@ -47,18 +47,22 @@ const SelectComponent = ({ value, changeHandler, items, ...props }) => {
           </MenuItem>
         ))}
       </Select>
-      <FormHelperText className={classes.helperText}>Wybierz walutę</FormHelperText>
+      {helperText && <FormHelperText className={classes.helperText}>{helperText}</FormHelperText>}
     </FormControl>
   );
 };
 
 SelectComponent.propTypes = {
+  label: PropTypes.string,
+  helperText: PropTypes.string,
   value: PropTypes.any.isRequired,
   changeHandler: PropTypes.func.isRequired,
   items: PropTypes.array,
 };
 
 SelectComponent.defaultProps = {
+  label: '',
+  helperText: '',
   items: [],
 };
 
