@@ -39,10 +39,13 @@ const OperationWindow = ({
     setOperationAmount(value);
   };
 
-  const handleInputChange = (event) => {
-    // eslint-disable-next-line no-param-reassign
-    event.target.value = Number(event.target.value);
-    setOperationAmount(event.target.value === '' ? 0 : Number(event.target.value));
+  const handleInputChange = ({ target: { value } }) => {
+    const dotIndex = value.indexOf('.');
+    setOperationAmount(
+      dotIndex >= 0 && dotIndex < value.length - 3
+        ? Number(value.slice(0, dotIndex + 3))
+        : Number(value),
+    );
   };
 
   const handleInputBlur = () => {

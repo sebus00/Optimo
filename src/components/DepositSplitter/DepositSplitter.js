@@ -58,16 +58,20 @@ const DepositSplitter = ({ jars, currencies, splitDeposit, closeHandler }) => {
     );
   };
 
-  const handleInputChange = (event) => {
-    // eslint-disable-next-line no-param-reassign
-    event.target.value = Number(event.target.value);
-    setDepositAmount(event.target.value === '' ? 0 : Number(event.target.value));
+  const handleInputChange = ({ target: { value } }) => {
+    const dotIndex = value.indexOf('.');
+    setDepositAmount(
+      dotIndex >= 0 && dotIndex < value.length - 3
+        ? Number(value.slice(0, dotIndex + 3))
+        : Number(value),
+    );
   };
 
   const handleInputBlur = () => {
     if (depositAmount < 0) {
       setDepositAmount(0);
     }
+    setDepositArray(depositArray.map(({ amount, ...rest }) => ({ amount: 0, ...rest })));
   };
 
   const confirmSplitDeposit = () => {
