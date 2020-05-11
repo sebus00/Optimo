@@ -8,10 +8,12 @@ const useStyles = makeStyles({
   textField: {
     fontSize: ({ large }) => (large ? '2rem' : '1.6rem'),
     lineHeight: ({ large }) => (large ? '2.5rem' : '2rem'),
+    width: '100%',
   },
   label: {
     fontSize: ({ large }) => (large ? '1.6rem' : '1.3rem'),
     lineHeight: ({ large }) => (large ? '2rem' : '1.7rem'),
+    whiteSpace: 'nowrap',
   },
 });
 

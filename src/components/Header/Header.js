@@ -35,6 +35,7 @@ const StyledWrapper = styled.nav`
   justify-content: flex-start;
   align-items: center;
   color: #fff;
+  z-index: 10;
 `;
 
 const StyledItem = styled.div`

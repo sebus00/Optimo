@@ -11,8 +11,21 @@ const StyledWrapper = styled.div`
   padding: 20px;
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(1, 1fr);
   grid-gap: 50px;
+  justify-items: center;
+
+  @media (min-width: 760px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 960px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (min-width: 1264px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
 `;
 
 const Managment = ({ jars, transferMoney }) => {

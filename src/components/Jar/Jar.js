@@ -14,6 +14,7 @@ import {
 import styled from 'styled-components';
 import NumberFormat from 'react-number-format';
 import cx from 'classnames';
+import { makeStyles } from '@material-ui/core/styles';
 import { ReactComponent as DepositIcon } from 'assets/icons/deposit.svg';
 import { ReactComponent as WithdrawIcon } from 'assets/icons/withdraw.svg';
 import { ReactComponent as TransferIcon } from 'assets/icons/transfer.svg';
@@ -29,6 +30,7 @@ import Select from 'components/Select/Select';
 import Modal from 'components/Modal/Modal';
 import Table from 'components/Table/Table';
 import Box from '@material-ui/core/Box';
+import Button from '@material-ui/core/Button';
 
 const StyledWrapper = styled(Box)`
   width: 100%;
@@ -77,6 +79,7 @@ const StyledTipWrapper = styled.div`
   align-items: center;
   justify-content: center;
   text-align: center;
+  flex-direction: column;
 `;
 
 const StyledLeftSection = styled.div`
@@ -134,6 +137,19 @@ const StyledSelectWrapper = styled.div`
   align-items: center;
   justify-content: flex-start;
 `;
+
+const useStyles = makeStyles({
+  root: {
+    marginTop: '5px',
+    '&:hover': {
+      backgroundColor: 'rgba(255, 255, 255, 0.16)',
+    },
+  },
+  text: {
+    color: '#fff',
+    fontSize: '1.4rem',
+  },
+});
 
 const Jar = ({
   jar,
@@ -223,6 +239,8 @@ const Jar = ({
   const displayHistory = () => {
     setModalOpen(true);
   };
+
+  const classes = useStyles();
 
   return (
     <StyledWrapper
@@ -349,7 +367,19 @@ const Jar = ({
         </IconButton>
       </StyledButtonsColumn>
       {state.step === 1 && state.from.id === id && (
-        <StyledTipWrapper>Wskaż słoik do transferu</StyledTipWrapper>
+        <StyledTipWrapper>
+          <div>Wskaż słoik do transferu</div>
+          <Button
+            size="large"
+            onClick={endOperation}
+            classes={{
+              root: classes.root,
+              text: classes.text,
+            }}
+          >
+            Anuluj
+          </Button>
+        </StyledTipWrapper>
       )}
       {state.step === 2 && state.to.id === id && (
         <OperationWindow

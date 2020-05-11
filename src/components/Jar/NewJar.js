@@ -10,18 +10,21 @@ import AddBoxIcon from '@material-ui/icons/AddBox';
 const useStyles = makeStyles({
   icon: {
     fontSize: '8rem',
-    // color: '#fff',
   },
 });
 
 const StyledWrapper = styled.div`
   width: 100%;
   max-width: 400px;
-  height: 200px;
+  height: 80px;
   padding: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
+
+  @media (min-width: 760px) {
+    height: 200px;
+  }
 `;
 
 const NewJar = ({ addJar, disabled }) => {
