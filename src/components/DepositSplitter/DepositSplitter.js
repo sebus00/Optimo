@@ -96,7 +96,6 @@ const DepositSplitter = ({ jars, currencies, splitDeposit, closeHandler }) => {
           helperText="Wybierz walutę"
           value={depositCurrency}
           changeHandler={selectChangeHandler}
-          // changeHandler={({ target: { value } }) => setDepositCurrency(value)}
           items={currencies.map((item) => ({ name: item.name, value: item.code }))}
         />
       </StyledRow>

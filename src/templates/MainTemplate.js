@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import GlobalStyle from 'theme/GlobalStyle';
-import styled, { ThemeProvider } from 'styled-components';
-import { theme } from 'theme/mainTheme';
+import styled from 'styled-components';
 import Header from 'components/Header/Header';
 
 const StyledWrapper = styled.div`
@@ -16,12 +15,10 @@ const MainTemplate = ({ children }) => {
   return (
     <>
       <GlobalStyle />
-      <ThemeProvider theme={theme}>
-        <StyledWrapper>
-          <Header />
-          {children}
-        </StyledWrapper>
-      </ThemeProvider>
+      <StyledWrapper>
+        <Header />
+        {children}
+      </StyledWrapper>
     </>
   );
 };
